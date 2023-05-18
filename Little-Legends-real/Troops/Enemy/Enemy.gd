@@ -1,4 +1,5 @@
 extends BaseTroop
 
 func _init():
-	self.troopType = "Enemy"
+	self.troopType = "Soldier"
+	self.team = 2

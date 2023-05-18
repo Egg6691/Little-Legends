@@ -16,14 +16,16 @@ func setTeam(teamVal):
 func _process(delta):
 	if endPoint != null:
 		if not endReached and movementRangeValid():
-			endReached = true
 			var direction = position.direction_to(endPoint).normalized()
 			position += direction * Speed;
+		if not movementRangeValid():
+			endReached = true
 		if endReached and team != null:
+			$CollisionShape2D.disabled = false
 			var allBodies = get_overlapping_bodies()
 			for body in allBodies:
 				if body.Health > 0 and body.team != team:
-					body.Health-=20;
+					body.Health-=20; # damage of fireball
 			queue_free()
 func movementRangeValid():
 	if position.x <= endPoint.x + Speed and position.x >= endPoint.x - Speed:

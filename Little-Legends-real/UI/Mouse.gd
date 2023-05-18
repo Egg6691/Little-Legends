@@ -1,11 +1,12 @@
 extends Area2D
-
+var task = "Nothing"
 var current_building
 var current_building_node
 var overlapping = 0
 var current_body
 var x1
 var y1
+var camLimits = [-442,448,-705,705]#0 = left; 1= right; 2 = top; 3 = bottom;
 @onready var square_coll = get_node("Select_Collision")
 @onready var square_size = get_node("Select_Square")
 @onready var castle_button = get_tree().root.get_child(0).get_node("Camera2D/CanvasLayer/UI/VBoxContainer/MainStuff/Buildings/VBoxContainer/Castle")
@@ -15,21 +16,38 @@ var y1
 @onready var farm_button = get_tree().root.get_child(0).get_node("Camera2D/CanvasLayer/UI/VBoxContainer/MainStuff/Buildings/VBoxContainer5/Farm")
 @onready var wall_v_button = get_tree().root.get_child(0).get_node("Camera2D/CanvasLayer/UI/VBoxContainer/MainStuff/Buildings/VBoxContainer6/Wall_V")
 @onready var wall_h_button = get_tree().root.get_child(0).get_node("Camera2D/CanvasLayer/UI/VBoxContainer/MainStuff/Buildings/VBoxContainer7/Wall_H")
+@onready var Camera = get_tree().root.get_child(0).get_node("Camera2D")
+
+@onready var soldier_button = get_tree().root.get_child(0).get_node("Camera2D/CanvasLayer/UI/VBoxContainer/MainStuff/ColorRect/Unit_Clicked/VBoxContainer/Castle")
 var mouse_position
 func _input(event):
 	if event is InputEventMouseMotion:
 		mouse_position = event.position - get_viewport_rect().size/2
-		var tiles = Vector2(int(mouse_position.x) / 16, int(mouse_position.y) / 16)
-		if x1 != null and y1 != null:
-			var shape = RectangleShape2D.new()
-			shape.size = Vector2(abs(mouse_position.x-x1),abs(mouse_position.y -y1) )
-			square_coll.set_shape(shape)
-			square_size.scale = shape.size
-			square_coll.position = Vector2(mouse_position.x-x1,mouse_position.y -y1)/2
-			square_size.position = Vector2(mouse_position.x-x1,mouse_position.y -y1)/2
+		if task == "DragCam":
+			if not (Camera.position.x < camLimits[0] or Camera.position.x > camLimits[1] or Camera.position.y < camLimits[2] or Camera.position.y > camLimits[3]):
+				Camera.position -= event.relative
+			if Camera.position.x < camLimits[0]:
+				Camera.position = Vector2(camLimits[0],Camera.position.y)
+			if Camera.position.x > camLimits[1]:
+				Camera.position = Vector2(camLimits[1],Camera.position.y)
+			if Camera.position.y < camLimits[2]:
+				Camera.position = Vector2(Camera.position.x,camLimits[2])
+			if Camera.position.y > camLimits[3]:
+				Camera.position = Vector2(Camera.position.x,camLimits[3])
 		else:
-			position = tiles * 16
+			var tiles = Vector2(int(mouse_position.x) / 16, int(mouse_position.y) / 16)
+			if x1 != null and y1 != null:
+				var shape = RectangleShape2D.new()
+				shape.size = Vector2(abs(mouse_position.x-x1),abs(mouse_position.y -y1) )
+				square_coll.set_shape(shape)
+				square_size.scale = shape.size
+				square_coll.position = Vector2(mouse_position.x-x1,mouse_position.y -y1)/2
+				square_size.position = Vector2(mouse_position.x-x1,mouse_position.y -y1)/2
+			else:
+				position = tiles * 16
 	if event.is_action_pressed("mouse1", false) and position.y <= 156:
+		get_parent().get_node("Camera2D/CanvasLayer/UI").get_node("VBoxContainer/MainStuff/Unit_Clicked").visible = false
+		get_parent().get_node("Camera2D/CanvasLayer/UI").get_node("VBoxContainer/MainStuff/Buildings").visible = true
 		if current_building != null and overlapping == 0 and check_resources(get_parent().get_node("CanvasLayer/Castle")):
 			var new_building = current_building.instantiate()
 			new_building.position = position
@@ -43,7 +61,10 @@ func _input(event):
 			square_size.scale = shape.size
 			current_building = null
 			current_building_node = null
+			get_parent().get_node("Camera2D/CanvasLayer/UI").get_node("VBoxContainer/MainStuff/Unit_Clicked").visible = true
+			get_parent().get_node("Camera2D/CanvasLayer/UI").get_node("VBoxContainer/MainStuff/Buildings").visible = false
 		else:
+			task = "SelectionStuff" # dont worry brandon you dont need it I just wanted it
 			x1 = mouse_position.x
 			y1 = mouse_position.y
 	if event.is_action_released("mouse1"):
@@ -57,7 +78,10 @@ func _input(event):
 		current_building_node = null
 		square_coll.position = Vector2(0,0)
 		square_size.position = Vector2(0,0)
-	
+	if event.is_action_pressed("mouse3", false):
+		task = "DragCam"
+	if event.is_action_released("mouse3"):
+		task = "Nothing"
 	if event is InputEventMouseButton and event.button_index == 2:
 		var shape = RectangleShape2D.new()
 		shape.size = Vector2(1,1)
@@ -74,6 +98,7 @@ func _ready():
 	wall_h_button.pressed.connect(_on_wall_pressed)	
 	wall_v_button.pressed.connect(_on_wall_v_pressed)	
 	farm_button.pressed.connect(_on_farm_pressed)
+	soldier_button.pressed.connect(_on_soldier_pressed)
 func check_resources(building):
 	if get_parent().wood >= building.wood and get_parent().stone >= building.stone: 
 		_remove_resources(building.wood, building.stone, 0, 0)
@@ -85,6 +110,12 @@ func _remove_resources(wood, stone, food, mana):
 	parent._stone(stone)
 	parent._food(food)
 	parent._mana(mana)
+func _on_soldier_pressed():
+	var soldier = load("res://Troops/Soldier/soldier.tscn")
+	var new = soldier.instantiate()
+	new.position = Vector2(0,0)
+	get_tree().root.get_child(0).add_child(new)
+	
 func _on_castle_pressed():
 	_button_pressed(get_parent().get_node("CanvasLayer/Castle"), load("res://Structures/Castle/castle.tscn"))
 func _on_sawmill_pressed():

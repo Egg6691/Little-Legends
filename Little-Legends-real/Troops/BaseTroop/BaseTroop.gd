@@ -39,9 +39,9 @@ func _process(_delta):
 					faceEnemy(body)
 					animation.play(troopType + "_Attacking")
 					if Ranged:
-						var projectile = ARROW.instance()
+						var projectile = ARROW.instantiate()
 						if troopType == "Wizard":
-							projectile = FIREBALL.instance()
+							projectile = FIREBALL.instantiate()
 						else:
 							body.Health-=Damage;
 						get_tree().current_scene.add_child(projectile)
@@ -55,6 +55,10 @@ func _process(_delta):
 					break
 func moveTo(ep):
 	endPoint = ep;
+	if endPoint.x < position.x:
+		$Sprite2D.flip_h = true
+	else:
+		$Sprite2D.flip_h = false
 func movementRangeValid():
 	if position.x <= endPoint.x + 10 and position.x >= endPoint.x - 10:
 		if position.y <= endPoint.y + 10 and position.y >= endPoint.y - 10:
