@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cvnmej31d6mxr"]
+
+[ext_resource type="PackedScene" uid="uid://dg7gq7iqhvvsy" path="res://Troops/BaseTroop/base_troop.tscn" id="1_8kw3k"]
+[ext_resource type="Script" path="res://Troops/Archer/Archer.gd" id="2_6np07"]
+
+[node name="Archer" instance=ExtResource("1_8kw3k")]
+script = ExtResource("2_6np07")
+Speed = 8
+Health = 50
+Ranged = true
+attackSpeedWaitTime = 1.0

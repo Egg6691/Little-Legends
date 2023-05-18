@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cickkpxiaeg4g"]
+
+[ext_resource type="PackedScene" uid="uid://dg7gq7iqhvvsy" path="res://Troops/BaseTroop/base_troop.tscn" id="1_v7a7h"]
+[ext_resource type="Script" path="res://Troops/Wizard/Wizard.gd" id="2_dlffq"]
+
+[node name="Wizard" instance=ExtResource("1_v7a7h")]
+script = ExtResource("2_dlffq")
+Speed = 4
+Health = 75
+Damage = 20
+Ranged = true
+attackSpeedWaitTime = 5.0

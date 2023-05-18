@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://bfr7qdx5oxod0"]
+
+[ext_resource type="Script" path="res://Troops/Worker/worker.gd" id="1_4khjm"]
+[ext_resource type="Texture2D" uid="uid://pjivukrvx6gp" path="res://Art/Worker.png" id="1_e6d4p"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ak3un"]
+radius = 4.0
+height = 16.0
+
+[node name="Worker" type="CharacterBody2D"]
+script = ExtResource("1_4khjm")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_e6d4p")
+
+[node name="BuildTime" type="Timer" parent="."]
+wait_time = 1.316
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_ak3un")
+
+[connection signal="timeout" from="BuildTime" to="." method="_on_build_time_timeout"]
